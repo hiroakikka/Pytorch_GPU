@@ -1,0 +1,18 @@
+FROM pytorch/pytorch:2.6.0-cuda12.4-cudnn9-runtime
+
+# 必要な環境変数を設定して非対話的にインストール
+ENV DEBIAN_FRONTEND=noninteractive
+COPY requirements.txt .
+
+# パッケージのアップデートとインストール
+RUN apt -y update && \
+    apt -y install libopencv-dev tzdata && \
+    apt -y clean && \
+    rm -rf /var/lib/apt/lists/* && \
+    # Pythonライブラリをインストール
+    pip install --no-cache-dir -r requirements.txt 
+
+COPY docker/.jupyter /root/.jupyter    
+
+# Jupyter を起動するエントリポイントを指定
+CMD ["jupyter", "lab", "--ip=0.0.0.0", "--allow-root", "--no-browser", "--port=8888"]
